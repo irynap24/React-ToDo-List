@@ -31,7 +31,9 @@ const todoReducer = (state, action) => {
 const App = () => {
     const [state, dispatch] = useReducer(todoReducer, initialState);
     const [newTodo, setNewTodo] = useState('');
-    // Function to handle adding item to list
+    const [editText, setEditText] = useState(''); // Local state for edited text
+    const [editingIndex, setEditingIndex] = useState(null); // Track the index of the todo being edited
+
     const handleAddTodo = () => {
         if (newTodo.trim()) {
             dispatch({ type: 'ADD_TODO', payload: newTodo });
@@ -39,24 +41,35 @@ const App = () => {
         }
     };
 
-    // Function to handle pressing enter key
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleAddTodo();
         }
     };
 
+    const handleEditChange = (index, value) => {
+        setEditText(value);
+        setEditingIndex(index);
+    };
+
+    const handleSaveEdit = (index) => {
+        dispatch({ type: 'SAVE_TODO', index, payload: editText });
+        setEditText('');
+        setEditingIndex(null);
+    };
+
     return (
         <div className="container">
             <h1>Todo List</h1>
             <input
+                className='addInput'
                 type="text"
                 value={newTodo}
                 onChange={(e) => setNewTodo(e.target.value)}
-                onKeyDown={handleKeyDown} // allows for list item to be added by pressing enter key
+                onKeyDown={handleKeyDown}
                 placeholder="Add a new todo"
             />
-            <button onClick={handleAddTodo}>Add</button>
+            <button className="add" onClick={handleAddTodo}>Add</button>
             <ul className="todo-list">
                 {state.map((todo, index) => (
                     <li key={index} className="todo-item">
@@ -64,11 +77,11 @@ const App = () => {
                             <>
                                 <input
                                     type="text"
-                                    value={todo.text}
-                                    onChange={(e) => dispatch({ type: 'SAVE_TODO', index, payload: e.target.value })}
+                                    value={editText} // Use local editText state
+                                    onChange={(e) => handleEditChange(index, e.target.value)}
                                 />
-                                <button onClick={() => dispatch({ type: 'SAVE_TODO', index, payload: todo.text })}>
-                                    Save
+                                <button onClick={() => handleSaveEdit(index)}>
+                                    <i className="fas fa-save"></i>
                                 </button>
                             </>
                         ) : (
@@ -81,14 +94,14 @@ const App = () => {
                                 <span className={todo.complete ? 'todo-text completed' : 'todo-text'}>
                                     {todo.text}
                                 </span>
-                                <button onClick={() => dispatch({ type: 'EDIT_TODO', index })}>
-                                    Edit
+                                <button className='edit' onClick={() => {
+                                    setEditText(todo.text); // Set the current text to editText
+                                    dispatch({ type: 'EDIT_TODO', index }); // Mark as editing
+                                }}>
+                                    <i className="fas fa-edit"></i>
                                 </button>
-                                <button
-                                    onClick={() => dispatch({ type: 'DELETE_TODO', index })}
-                                    disabled={!todo.complete}
-                                >
-                                    Delete
+                                <button className='delete' onClick={() => dispatch({ type: 'DELETE_TODO', index })} disabled={!todo.complete}>
+                                    <i className="fas fa-trash-alt"></i>
                                 </button>
                             </>
                         )}
