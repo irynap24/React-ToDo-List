@@ -1,8 +1,15 @@
 import React, { useReducer, useState } from 'react';
 import './App.css';
 
-// Initial state for the reducer
-const initialState = [];
+// Initial empty state for the reducer
+// const initialState = [];
+
+// Mock data to render for intial state instead of empty 
+const initialState = [
+    { text: 'Buy groceries', complete: false, isEditing: false },
+    { text: 'Pet Casper and Sunny', complete: false, isEditing: false },
+    { text: 'Go for a walk', complete: false, isEditing: false },
+];
 
 // Reducer function to manage todos
 const todoReducer = (state, action) => {
@@ -34,24 +41,25 @@ const App = () => {
     const [editText, setEditText] = useState(''); // Local state for edited text
     const [editingIndex, setEditingIndex] = useState(null); // Track the index of the todo being edited
 
+  // Function to handle adding
     const handleAddTodo = () => {
         if (newTodo.trim()) {
             dispatch({ type: 'ADD_TODO', payload: newTodo });
             setNewTodo('');
         }
     };
-
+    // Function to enable pressing enter key to add item to list
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleAddTodo();
         }
     };
-
+    // Function to handle edit
     const handleEditChange = (index, value) => {
         setEditText(value);
         setEditingIndex(index);
     };
-
+    // Function to handle save after edit
     const handleSaveEdit = (index) => {
         dispatch({ type: 'SAVE_TODO', index, payload: editText });
         setEditText('');
